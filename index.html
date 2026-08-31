@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Workspace - Tableau de bord</title>
+    <!-- Lien vers la feuille de style CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js CDN pour la future génération des graphiques en JavaScript -->
+    <script src="https://jsdelivr.net"></script>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- BARRE LATÉRALE                          -->
+
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>AI Workspace</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><a href="#dashboard">Tableau de bord</a></li>
+                    <li><a href="#chat">Chat</a></li>
+                    <li><a href="#summary">Résumé de texte</a></li>
+                    <li><a href="#classification">Classification</a></li>
+                    <li><a href="#translation">Traduction</a></li>
+                    <li><a href="#history">Historique</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+
+        <!-- CONTENEUR DU CONTENU DE DROITE                      -->
+        <div class="main-content">
+
+            <!-- EN-TÊTE (NAVBAR) -->
+            <header class="navbar">
+                <div class="navbar-title">AI Workspace</div>
+                <div class="navbar-user">
+                    <span class="user-name">Admin User</span>
+                    <span class="user-arrow">▼</span>
+                </div>
+            </header>
+
+            <!-- ZONE PRINCIPALE DE TRAVAIL -->
+            <main class="dashboard-view">
+                
+                <!-- Titre de la page active -->
+                <div class="dashboard-header">
+                    <h1>Tableau de bord</h1>
+                    <p>Bienvenue sur votre espace de travail intelligent.</p>
+                </div>
+
+                
+                <!-- CARTES DE STATISTIQUES               -->
+                <section class="kpi-grid">
+                    
+                    <div class="kpi-card">
+                        <h3>Nombre de jeux de données</h3>
+                        <div class="kpi-value">24</div>
+                        <span class="kpi-trend trend-blue">+3 ce mois-ci</span>
+                    </div>
+
+                    <div class="kpi-card">
+                        <h3>Nombre de requêtes</h3>
+                        <div class="kpi-value">1,256</div>
+                        <span class="kpi-trend trend-green">+18% ce mois-ci</span>
+                    </div>
+
+                    <div class="kpi-card">
+                        <h3>Nombre de modèles disponibles</h3>
+                        <div class="kpi-value">12</div>
+                        <span class="kpi-trend trend-blue">+2 ce mois-ci</span>
+                    </div>
+
+                    <div class="kpi-card">
+                        <h3>Utilisateurs actifs</h3>
+                        <div class="kpi-value">8</div>
+                        <span class="kpi-trend trend-orange">+2 ce mois-ci</span>
+                    </div>
+
+                    <div class="kpi-card">
+                        <h3>Tâches exécutées</h3>
+                        <div class="kpi-value">342</div>
+                        <span class="kpi-trend trend-green">+22% ce mois-ci</span>
+                    </div>
+
+                </section>
+
+                <!-- VISUALISATIONS                   -->
+                <section class="charts-grid">
+                    
+                    <!-- Graphique linéaire : Requêtes par jour -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h2>Requêtes par jour</h2>
+                            <select id="time-filter">
+                                <option value="7">7 derniers jours</option>
+                                <option value="30">30 derniers jours</option>
+                            </select>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="requestsLineChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Graphique en anneau : Répartition par service -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h2>Répartition des requêtes par service</h2>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="servicesDoughnutChart"></canvas>
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- TABLEAUX DE DONNÉES (DATA TABLES)                 -->
+                <section class="data-grid">
+                    
+                    <!-- Tableau 1 : Activité récente -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h2>Activité récente</h2>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Activité</th>
+                                        <th>Service</th>
+                                        <th>Utilisateur</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Résumé du document_projet.pdf</td>
+                                        <td><span class="badge badge-summary">Résumé de texte</span></td>
+                                        <td>Admin User</td>
+                                        <td>21/05/2024 14:32</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Classification de sentiments</td>
+                                        <td><span class="badge badge-classification">Classification</span></td>
+                                        <td>Admin User</td>
+                                        <td>21/05/2024 14:21</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Traduction FR → EN</td>
+                                        <td><span class="badge badge-translation">Traduction</span></td>
+                                        <td>Admin User</td>
+                                        <td>21/05/2024 14:15</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Discussion sur l'IA générative</td>
+                                        <td><span class="badge badge-chat">Chat</span></td>
+                                        <td>Admin User</td>
+                                        <td>21/05/2024 14:05</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Génération d'idées de projet</td>
+                                        <td><span class="badge badge-ideas">Idées</span></td>
+                                        <td>Admin User</td>
+                                        <td>21/05/2024 13:50</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-footer">
+                            <a href="#history" class="view-all">Voir tout l'historique</a>
+                        </div>
+                    </div>
+
+                    <!-- Tableau 2 : Modèles populaires -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h2>Modèles populaires</h2>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Modèle</th>
+                                        <th>Utilisations</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>mistral-7b-instruct</td>
+                                        <td><strong>532</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>gpt-4-turbo</td>
+                                        <td><strong>389</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>llama-3-8b</td>
