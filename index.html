@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Workspace - Tableau de bord</title>
     <!-- Lien vers la feuille de style CSS -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./css/style.css">
     <!-- Chart.js CDN pour la future génération des graphiques en JavaScript -->
     <script src="https://jsdelivr.net"></script>
 </head>
@@ -102,7 +102,7 @@
                             </select>
                         </div>
                         <div class="chart-wrapper">
-                            <canvas id="requestsLineChart"></canvas>
+                            <img src="./images/courbe1.png" alt="Graphique des requêtes par jour" class="chart-img" width="100%" height="300">
                         </div>
                     </div>
 
@@ -112,11 +112,12 @@
                             <h2>Répartition des requêtes par service</h2>
                         </div>
                         <div class="chart-wrapper">
-                            <canvas id="servicesDoughnutChart"></canvas>
+                            <img src="./images/piecirc.png" alt="Répartition des requêtes par service" class="chart-img">
                         </div>
                     </div>
 
                 </section>
+
 
                 <!-- TABLEAUX DE DONNÉES (DATA TABLES)                 -->
                 <section class="data-grid">
