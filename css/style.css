@@ -324,3 +324,19 @@ tr:last-child td {
 .badge-translation { background-color: #fef3c7; color: #d97706; }
 .badge-chat { background-color: #d1fae5; color: #059669; }
 .badge-ideas { background-color: #f3e8ff; color: #7c3aed; }
+
+
+.chart-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 260px; /* Ajustement de la hauteur pour correspondre à vos images */
+    overflow: hidden;
+}
+
+.chart-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Conserve les proportions d'origine sans couper vos textes ou chiffres */
+    display: block;
+}
