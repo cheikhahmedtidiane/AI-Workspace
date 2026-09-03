@@ -149,7 +149,7 @@ body {
     color: var(--text-light);
 }
 
-/* GRILLE DES CARTES DE STATISTIQUES (KPIs) */
+/* GRILLE DES CARTES DE STATISTIQUES */
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

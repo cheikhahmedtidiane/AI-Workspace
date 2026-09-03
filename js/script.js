@@ -24,7 +24,10 @@ menuItems.forEach(item => {
             } 
             else if (targetHref === '#translation') {
                 chargerInterfaceTraduction();
-            } 
+            }
+            else if (targetHref === '#chat') {
+                chargerInterfaceChat(); 
+            }
             else if (targetHref === '#dashboard') {
                 mainContentArea.innerHTML = dashboardHTMLTemplate;
                 initialiserGraphiquesParDefaut();
@@ -230,4 +233,123 @@ function executerTraductionSimulee() {
         btn.disabled = false;
         btn.innerText = "Traduire le texte";
     }, 1000);
+}
+
+
+
+// FONCTIONS AJOUTÉES POUR LE MODULE CHAT IA
+
+function chargerInterfaceChat() {
+    mainContentArea.innerHTML = `
+        <!-- Barre supérieure -->
+        <header class="navbar">
+            <div class="navbar-title">AI Workspace</div>
+            <div class="navbar-user">
+                <span class="user-name">Admin User</span>
+                <span class="user-arrow">▼</span>
+            </div>
+        </header>
+
+        <!-- Contenu spécifique au Chat -->
+        <main class="dashboard-view" style="display: flex; flex-direction: column; height: calc(100vh - 70px); padding-bottom: 20px;">
+            <div class="dashboard-header" style="margin-bottom: 15px;">
+                <h1>Chat Assistant IA</h1>
+                <p>Discutez en temps réel avec un grand modèle de langage pour poser vos questions de code, analyse ou stratégie.</p>
+            </div>
+
+            <!-- Fenêtre de Chat Principale -->
+            <div class="table-card" style="flex-grow: 1; display: flex; flex-direction: column; border-radius: 8px; overflow: hidden; background-color: var(--bg-card);">
+                
+                <!-- Zone d'affichage des messages -->
+                <div id="chat-messages-container" style="flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; max-height: 450px;">
+                    <!-- Message initial du système -->
+                    <div class="message-bubble system" style="background-color: #f1f5f9; padding: 12px 16px; border-radius: 8px; max-width: 80%; align-self: flex-start; border-left: 4px solid var(--text-light);">
+                        <p style="font-size: 0.9rem; color: var(--text-main);">
+                            <strong>Assistant IA :</strong> Bonjour ! Je suis votre agent virtuel interne connecté à nos modèles de langage. Comment puis-je vous aider dans vos tâches aujourd'hui ?
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Zone d'indicateur de chargement (Masquée par défaut) -->
+                <div id="chat-loading-indicator" style="display: none; padding: 0 20px 10px 20px; font-size: 0.85rem; color: var(--text-light); font-style: italic; align-self: flex-start;">
+                    L'IA est en train d'écrire...
+                </div>
+
+                <!-- Barre d'outils de saisie de texte -->
+                <div style="padding: 15px 20px; border-top: 1px solid var(--border-color); background-color: #f8fafc; display: flex; gap: 10px; align-items: center;">
+                    <input type="text" id="chat-user-input" placeholder="Posez votre question ici..." style="flex-grow: 1; padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); font-family: inherit; font-size: 0.95rem; outline: none;">
+                    <button id="btn-chat-send" style="background-color: var(--color-green); color: #fff; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s; white-space: nowrap;">
+                        Envoyer
+                    </button>
+                </div>
+
+            </div>
+        </main>
+    `;
+
+    // Écouteurs d'événements pour l'envoi du message (Clic bouton et touche Entrée)
+    document.getElementById('btn-chat-send').addEventListener('click', envoyerMessageChat);
+    document.getElementById('chat-user-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            envoyerMessageChat();
+        }
+    });
+}
+
+// Fonction pour gérer l'envoi du message de l'utilisateur et la réponse simulée de l'IA
+
+function envoyerMessageChat() {
+    const inputField = document.getElementById('chat-user-input');
+    const userText = inputField.value.trim();
+    const messagesContainer = document.getElementById('chat-messages-container');
+    const loadingIndicator = document.getElementById('chat-loading-indicator');
+    const sendBtn = document.getElementById('btn-chat-send');
+
+    if (userText === "") return;
+
+    // 1. Ajouter le message de l'utilisateur à l'écran
+    const userBubble = document.createElement('div');
+    userBubble.style.cssText = "background-color: #e0e7ff; padding: 12px 16px; border-radius: 8px; max-width: 80%; align-self: flex-end; border-right: 4px solid var(--color-blue); text-align: left;";
+    userBubble.innerHTML = `<p style="font-size: 0.9rem; color: var(--text-main);"><strong>Vous :</strong> ${userText}</p>`;
+    messagesContainer.appendChild(userBubble);
+
+    // Vider le champ de saisie
+    inputField.value = "";
+    
+    // Défiler vers le bas automatiquement
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // 2. Activer l'état de chargement de l'IA
+    loadingIndicator.style.display = "block";
+    sendBtn.disabled = true;
+    inputField.disabled = true;
+
+    // 3. Simuler la latence de traitement du LLM (1,5 seconde)
+    setTimeout(() => {
+        // Réponses simulées génériques mais contextualisées pour la Data Science
+        const reponsesIA = [
+            "C'est une excellente question. D'un point de vue analyse de données, nous devrions d'abord nettoyer les valeurs manquantes avant d'entraîner ce modèle.",
+            "J'ai analysé votre requête. Les logs système indiquent que l'API cible répond correctement avec un code HTTP 200.",
+            "Pour implémenter cela sans framework, assurez-vous de bien structurer vos requêtes asynchrones en utilisant la méthode native JavaScript 'fetch()'.",
+            "Votre demande de script d'automatisation a été prise en compte. N'oubliez pas de configurer les variables d'environnement pour stocker vos clés API de manière sécurisée."
+        ];
+
+        // Sélection aléatoire d'une réponse
+        const reponseAleatoire = reponsesIA[Math.floor(Math.random() * reponsesIA.length)];
+
+        // Ajouter la bulle de réponse de l'IA à l'écran
+        const aiBubble = document.createElement('div');
+        aiBubble.style.cssText = "background-color: #d1fae5; padding: 12px 16px; border-radius: 8px; max-width: 80%; align-self: flex-start; border-left: 4px solid var(--color-green);";
+        aiBubble.innerHTML = `<p style="font-size: 0.9rem; color: var(--text-main);"><strong>Assistant IA :</strong> ${reponseAleatoire}</p>`;
+        messagesContainer.appendChild(aiBubble);
+
+        // Désactiver le chargement et restaurer les contrôles
+        loadingIndicator.style.display = "none";
+        sendBtn.disabled = false;
+        inputField.disabled = false;
+        inputField.focus();
+
+        // Redéfiler vers le bas
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }, 1500);
 }
