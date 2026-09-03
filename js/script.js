@@ -1,12 +1,44 @@
 
 // GESTION DES VUES : NAVIGATION DANS LE MENU LATÉRAL
 console.log("Fichier lié avec succès !");
+
+
 // Sélection des éléments du DOM
 const menuItems = document.querySelectorAll('.sidebar-nav li');
 const mainContentArea = document.querySelector('.main-content');
 
-// Sauvegarde du code HTML initial du Tableau de Bord pour pouvoir y revenir
+// On injecte d'abord le vrai historique dans le HTML avant de sauvegarder le template
+mettreAJourActiviteRecenteDashboard();
+
+// On sauvegarde le template de base propre et dynamique !
 const dashboardHTMLTemplate = mainContentArea.innerHTML;
+
+
+
+
+// 0. GESTION DU STORAGE (LOCALSTORAGE)
+
+function enregistrerDansHistorique(activite, service) {
+    // Récupérer l'historique existant ou créer un tableau vide
+    let historique = JSON.parse(localStorage.getItem('ai_workspace_history')) || [];
+    
+    // Créer la nouvelle entrée
+    const nouvelleEntree = {
+        id: Date.now(),
+        activite: activite,
+        service: service,
+        utilisateur: "Admin User",
+        date: new Date().toLocaleString('fr-FR', { hour12: false })
+    };
+    
+    // Ajouter au début du tableau (plus récent en premier)
+    historique.unshift(nouvelleEntree);
+    
+    // Sauvegarder à nouveau dans le localStorage
+    localStorage.setItem('ai_workspace_history', JSON.stringify(historique));
+}
+
+
 
 // Écoute du clic sur chaque lien du menu latéral
 menuItems.forEach(item => {
@@ -26,19 +58,30 @@ menuItems.forEach(item => {
                 chargerInterfaceTraduction();
             }
             else if (targetHref === '#chat') {
-                chargerInterfaceChat(); 
+                chargerInterfaceChat();
             }
             else if (targetHref === '#dashboard') {
                 mainContentArea.innerHTML = dashboardHTMLTemplate;
                 initialiserGraphiquesParDefaut();
-            } else if (targetHref === '#dashboard') {
-                // Si clic sur Tableau de bord -> On recharge le dashboard initial
+            
+                mettreAJourActiviteRecenteDashboard();
+            
+                initialiserGraphiquesParDefaut();
+
+            }
+            else if (targetHref === '#dashboard') {
+
                 mainContentArea.innerHTML = dashboardHTMLTemplate;
-                // Optionnel : Re-déclencher l'initialisation des graphiques si nécessaire
+            
+                mettreAJourActiviteRecenteDashboard();
+            
                 initialiserGraphiquesParDefaut();
             }
             else if (targetHref === '#classification') {
                 chargerInterfacePrediction();
+            }
+            else if (targetHref === '#history') {
+                chargerInterfaceHistorique();
             }
             else {
             // Pour les autres modules en attente de développement
@@ -112,7 +155,7 @@ function chargerInterfaceResume() {
 }
 
 
-// LOGIQUE IA SIMULÉE : TRAITEMENT DU RÉSUMÉ
+// LOGIQUE SIMULÉE TRAITEMENT DU RÉSUMÉ
 
 function executerResumeSimule() {
     const textInput = document.getElementById('text-to-summarize').value.trim();
@@ -148,6 +191,8 @@ function executerResumeSimule() {
         resultText.innerText = resumeGenere;
         resultBox.style.display = "block";
         
+        enregistrerDansHistorique(`Résumé généré (${textInput.substring(0,25)}...)`, "Résumé de texte");
+
         // Rétablissement du bouton
         btn.disabled = false;
         btn.innerText = "Générer le résumé";
@@ -158,9 +203,9 @@ function executerResumeSimule() {
 
 
 
-// ==========================================================================
+
 // FONCTIONS AJOUTÉES POUR LE MODULE TRADUCTION
-// ==========================================================================
+
 function chargerInterfaceTraduction() {
     mainContentArea.innerHTML = `
         <header class="navbar">
@@ -234,6 +279,8 @@ function executerTraductionSimulee() {
         resultText.innerText = traductionGenere;
         resultBox.style.display = "block";
         
+        enregistrerDansHistorique(`Traduction FR → ${langSelect.toUpperCase()} (${textInput.substring(0,25)}...)`, "Traduction");
+
         btn.disabled = false;
         btn.innerText = "Traduire le texte";
     }, 1000);
@@ -347,6 +394,8 @@ function envoyerMessageChat() {
         aiBubble.innerHTML = `<p style="font-size: 0.9rem; color: var(--text-main);"><strong>Assistant IA :</strong> ${reponseAleatoire}</p>`;
         messagesContainer.appendChild(aiBubble);
 
+        enregistrerDansHistorique(`Discussion : "${userText.substring(0,25)}..."`, "Chat");
+
         // Désactiver le chargement et restaurer les contrôles
         loadingIndicator.style.display = "none";
         sendBtn.disabled = false;
@@ -452,7 +501,7 @@ function executerPredictionSimulee() {
 
     // Simulation visuelle de calcul de matrice / inférence
     btn.disabled = true;
-    btn.innerText = "⚡ Inférence du modèle en cours...";
+    btn.innerText = "Inférence du modèle en cours...";
     resultBox.style.display = "none";
 
     setTimeout(() => {
@@ -476,8 +525,198 @@ function executerPredictionSimulee() {
         resultText.innerText = reponseFictive;
         resultBox.style.display = "block";
         
+        enregistrerDansHistorique(`Prédiction profil (Âge: ${age}, Revenu: ${income})`, "Prédiction");
+
         // Rétablissement des contrôles
         btn.disabled = false;
         btn.innerText = "Lancer la prédiction";
     }, 1300); // Latence réseau / calcul de 1,3 seconde
 }
+
+
+
+
+
+
+// FONCTIONS AJOUTÉES POUR LE MODULE HISTORIQUE
+
+function chargerInterfaceHistorique() {
+    mainContentArea.innerHTML = `
+        <header class="navbar">
+            <div class="navbar-title">AI Workspace</div>
+            <div class="navbar-user">
+                <span class="user-name">Admin User</span>
+                <span class="user-arrow">▼</span>
+            </div>
+        </header>
+
+        <main class="dashboard-view">
+            <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h1>Historique des requêtes</h1>
+                    <p>Consultez, recherchez et gérez l'ensemble des interactions passées avec les services d'IA.</p>
+                </div>
+                <!-- Bouton de vidange globale -->
+                <button id="btn-clear-all" style="background-color: #ef4444; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: background 0.2s;">
+                    Vider tout l'historique
+                </button>
+            </div>
+
+            <!-- Barre de recherche -->
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="history-search" placeholder="🔍 Rechercher une activité ou un service..." style="width: 100%; max-width: 400px; padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color); font-family: inherit; font-size: 0.95rem; outline: none;">
+            </div>
+
+            <!-- Tableau de l'historique -->
+            <div class="table-card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Activité</th>
+                                <th>Service</th>
+                                <th>Utilisateur</th>
+                                <th>Date & Heure</th>
+                                <th style="text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <!-- Les lignes seront injectées dynamiquement par JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    `;
+
+    // Attacher les écouteurs d'événements
+    document.getElementById('history-search').addEventListener('input', filtrerHistorique);
+    document.getElementById('btn-clear-all').addEventListener('click', viderToutHistorique);
+
+    // Charger les lignes du tableau au démarrage de la vue
+    afficherLignesHistorique();
+}
+
+function afficherLignesHistorique(filtre = "") {
+    const tbody = document.getElementById('history-table-body');
+    const historique = JSON.parse(localStorage.getItem('ai_workspace_history')) || [];
+    
+    tbody.innerHTML = "";
+
+    // Filtrer le tableau selon la saisie utilisateur
+    const historiqueFiltre = historique.filter(item => 
+        item.activite.toLowerCase().includes(filtre.toLowerCase()) || 
+        item.service.toLowerCase().includes(filtre.toLowerCase())
+    );
+
+    if (historiqueFiltre.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-light); padding: 30px;">Aucune requête trouvée dans l'historique.</td></tr>`;
+        return;
+    }
+
+    // Générer dynamiquement les badges CSS appropriés
+    const getBadgeClass = (service) => {
+        if(service.includes("Résumé")) return "badge-summary";
+        if(service.includes("Traduction")) return "badge-translation";
+        if(service.includes("Chat")) return "badge-chat";
+        return "badge-classification"; // Pour la prédiction
+    };
+
+    historiqueFiltre.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.activite}</td>
+            <td><span class="badge ${getBadgeClass(item.service)}">${item.service}</span></td>
+            <td>${item.utilisateur}</td>
+            <td>${item.date}</td>
+            <td style="text-align: center;">
+                <button class="btn-delete-row" data-id="${item.id}" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.1rem;" title="Supprimer cette ligne">❌</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Ajouter les écouteurs sur chaque bouton de suppression de ligne individuelle
+    document.querySelectorAll('.btn-delete-row').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const idASupprimer = parseInt(this.getAttribute('data-id'));
+            supprimerEntreeHistorique(idASupprimer);
+        });
+    });
+}
+
+function filtrerHistorique(e) {
+    afficherLignesHistorique(e.target.value);
+}
+
+function supprimerEntreeHistorique(id) {
+    if (confirm("Supprimer cette entrée définitivement de l'historique ?")) {
+        let historique = JSON.parse(localStorage.getItem('ai_workspace_history')) || [];
+        historique = historique.filter(item => item.id !== id);
+        localStorage.setItem('ai_workspace_history', JSON.stringify(historique));
+        
+        // Rafraîchir l'affichage avec la valeur actuelle de la recherche
+        const valeurRecherche = document.getElementById('history-search').value;
+        afficherLignesHistorique(valeurRecherche);
+    }
+}
+
+function viderToutHistorique() {
+    if (confirm("Êtes-vous sûr de vouloir effacer l'intégralité de l'historique ? Cette action est irréversible.")) {
+        localStorage.removeItem('ai_workspace_history');
+        afficherLignesHistorique();
+    }
+}
+
+
+
+
+
+// FONCTION DE MISE À JOUR DYNAMIQUE DE L'ACTIVITÉ RÉCENTE SUR LE DASHBOARD
+
+function mettreAJourActiviteRecenteDashboard() {
+    // On cible le corps du tableau de la section "Activité récente"
+    // Dans le HTML initial, il se trouve dans la première structure de table
+    const tableBody = document.querySelector('.table-card tbody');
+    if (!tableBody) return;
+
+    // Récupérer l'historique réel
+    const historique = JSON.parse(localStorage.getItem('ai_workspace_history')) || [];
+
+    // Si l'historique est vide, on affiche un message propre
+    if (historique.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-light); padding: 20px;">Aucune activité récente enregistrée.</td></tr>`;
+        return;
+    }
+
+    // On ne prend que les 5 éléments les plus récents (Top 5)
+    const top5Activites = historique.slice(0, 5);
+
+    // Fonction pour attribuer la bonne classe de badge CSS
+    const getBadgeClass = (service) => {
+        if(service.includes("Résumé")) return "badge-summary";
+        if(service.includes("Traduction")) return "badge-translation";
+        if(service.includes("Chat")) return "badge-chat";
+        return "badge-classification"; // Pour la prédiction
+    };
+
+    // Vider le tableau statique
+    tableBody.innerHTML = "";
+
+    // Injecter les vraies lignes dynamiques
+    top5Activites.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.activite}</td>
+            <td><span class="badge ${getBadgeClass(item.service)}">${item.service}</span></td>
+            <td>${item.utilisateur}</td>
+            <td>${item.date}</td>
+        `;
+        tableBody.appendChild(tr);
+    });
+}
+
+// S'assurer que le tableau est aussi mis à jour lors du tout premier chargement de l'application
+window.addEventListener('DOMContentLoaded', () => {
+    mettreAJourActiviteRecenteDashboard();
+});
