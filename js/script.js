@@ -36,7 +36,11 @@ menuItems.forEach(item => {
                 mainContentArea.innerHTML = dashboardHTMLTemplate;
                 // Optionnel : Re-déclencher l'initialisation des graphiques si nécessaire
                 initialiserGraphiquesParDefaut();
-        } else {
+            }
+            else if (targetHref === '#classification') {
+                chargerInterfacePrediction();
+            }
+            else {
             // Pour les autres modules en attente de développement
             mainContentArea.innerHTML = `
                 <header class="navbar">
@@ -352,4 +356,128 @@ function envoyerMessageChat() {
         // Redéfiler vers le bas
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }, 1500);
+}
+
+
+
+// FONCTIONS AJOUTÉES POUR LE MODULE PRÉDICTION (CLASSIFICATION)
+
+function chargerInterfacePrediction() {
+    mainContentArea.innerHTML = `
+        <!-- Barre supérieure -->
+        <header class="navbar">
+            <div class="navbar-title">AI Workspace</div>
+            <div class="navbar-user">
+                <span class="user-name">Admin User</span>
+                <span class="user-arrow">▼</span>
+            </div>
+        </header>
+
+        <!-- Contenu spécifique à la Prédiction -->
+        <main class="dashboard-view">
+            <div class="dashboard-header">
+                <h1>Modèle de Prédiction</h1>
+                <p>Estimez le profil d'éligibilité ou la segmentation d'un utilisateur à partir de variables démographiques et financières.</p>
+            </div>
+
+            <div class="data-grid" style="grid-template-columns: 1fr;">
+                <div class="table-card" style="padding: 30px; gap: 20px;">
+                    
+                    <form id="prediction-form-io" onsubmit="event.preventDefault();">
+                        
+                        <!-- Ligne 1 : Âge et Revenu (Flexbox) -->
+                        <div style="display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
+                            <div style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 200px;">
+                                <label for="pred-age" style="font-weight: 600; color: var(--text-main);">Âge du client :</label>
+                                <input type="number" id="pred-age" placeholder="Ex: 34" min="18" max="100" required style="padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); font-family: inherit; font-size: 0.95rem; outline: none;">
+                            </div>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 200px;">
+                                <label for="pred-income" style="font-weight: 600; color: var(--text-main);">Revenu annuel (€) :</label>
+                                <input type="number" id="pred-income" placeholder="Ex: 45000" min="0" required style="padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); font-family: inherit; font-size: 0.95rem; outline: none;">
+                            </div>
+                        </div>
+
+                        <!-- Ligne 2 : Sélection de la Ville -->
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+                            <label for="pred-city" style="font-weight: 600; color: var(--text-main);">Ville de résidence :</label>
+                            <select id="pred-city" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); font-family: inherit; font-size: 0.95rem; outline: none; color: var(--text-main);">
+                                <option value="" disabled selected>Choisir une ville...</option>
+                                <option value="Paris">Paris</option>
+                                <option value="Lyon">Lyon</option>
+                                <option value="Marseille">Marseille</option>
+                                <option value="Bordeaux">Bordeaux</option>
+                                <option value="Autre">Autre ville</option>
+                            </select>
+                        </div>
+
+                        <!-- Bouton d'action -->
+                        <div style="margin-bottom: 20px;">
+                            <button id="btn-predict" type="submit" style="background-color: var(--color-blue); color: #fff; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.95rem; transition: background 0.2s;">
+                                Lancer la prédiction
+                            </button>
+                        </div>
+
+                    </form>
+
+                    <!-- Zone d'affichage du résultat fictif (Masquée par défaut) -->
+                    <div id="prediction-result-box" style="display: none; background-color: #f8fafc; border-left: 4px solid var(--color-blue); padding: 20px; border-radius: 4px;">
+                        <h3 style="margin-bottom: 10px; color: var(--color-blue); font-size: 1.05rem;">Résultat du modèle (Scoring IA) :</h3>
+                        <p id="prediction-text" style="color: var(--text-main); font-size: 0.95rem; line-height: 1.6; white-space: pre-line;"></p>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    `;
+
+    // Attacher l'événement sur le bouton fraîchement généré
+    document.getElementById('btn-predict').addEventListener('click', executerPredictionSimulee);
+}
+
+function executerPredictionSimulee() {
+    const age = document.getElementById('pred-age').value;
+    const income = document.getElementById('pred-income').value;
+    const city = document.getElementById('pred-city').value;
+    
+    const resultBox = document.getElementById('prediction-result-box');
+    const resultText = document.getElementById('prediction-text');
+    const btn = document.getElementById('btn-predict');
+
+    // Validation HTML5 basique manuelle si déclenché par clic direct
+    if (!age || !income || !city) {
+        alert("Veuillez remplir l'âge, le revenu et sélectionner une ville.");
+        return;
+    }
+
+    // Simulation visuelle de calcul de matrice / inférence
+    btn.disabled = true;
+    btn.innerText = "⚡ Inférence du modèle en cours...";
+    resultBox.style.display = "none";
+
+    setTimeout(() => {
+        // Logique "Data Science" fictive basée sur les entrées pour donner un résultat cohérent
+        let scoreApetence = Math.min(100, Math.floor((income / 1500) + (age * 0.4)));
+        let segment = "Standard";
+        
+        if (income > 60000 || (income > 45000 && city === "Paris")) {
+            segment = "Premium / Haute Valeur";
+        } else if (income < 25000 && age < 26) {
+            segment = "Jeune / Entrée de gamme";
+        }
+
+        // Construction de la réponse formatée
+        let reponseFictive = `• Segment Client Estimé : **${segment}**\n`;
+        reponseFictive += `• Score d'appétence aux services : **${scoreApetence} / 100**\n`;
+        reponseFictive += `• Fiabilité de la prédiction (F1-Score) : 94.2%\n\n`;
+        reponseFictive += `[Données traitées : Âge: ${age} ans | Revenu: ${income} € | Localisation: ${city}]`;
+
+        // Rendu dans l'interface
+        resultText.innerText = reponseFictive;
+        resultBox.style.display = "block";
+        
+        // Rétablissement des contrôles
+        btn.disabled = false;
+        btn.innerText = "Lancer la prédiction";
+    }, 1300); // Latence réseau / calcul de 1,3 seconde
 }
